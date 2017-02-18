@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Data;
 using System.Data.SqlClient;
+using System.Runtime.InteropServices;
 
 namespace FollowMe_WebAPI.Models
 {
@@ -44,27 +45,67 @@ namespace FollowMe_WebAPI.Models
             return ds;
         }
 
-        public DataSet RunStoreProc(string spName, List<StoreProcParam> spParrams)
+        public StoreProc RunStoreProc(string spName, List<StoreProcParam> spParrams, [Optional] List<StoreProcParam> spOutParrams)
         {
+            StoreProc spReturn = new StoreProc();
             DataSet ds = new DataSet();
-            SqlDataAdapter da = new SqlDataAdapter();
-            SqlCommand cmd = new SqlCommand();
-            da.SelectCommand = cmd;
+            List<string> outList = new List<string>();
+            try
+            { 
+                SqlDataAdapter da = new SqlDataAdapter();
+                SqlCommand cmd = new SqlCommand();
+                da.SelectCommand = cmd;
 
-            cmd.CommandText = spName;
-            cmd.CommandType = CommandType.StoredProcedure;
-            foreach(StoreProcParam spParram in spParrams)
-            {
-                cmd.Parameters.AddWithValue(spParram.field, spParram.value);
+                cmd.CommandText = spName;
+                cmd.CommandType = CommandType.StoredProcedure;
+                foreach(StoreProcParam spParram in spParrams)
+                {
+                    cmd.Parameters.AddWithValue(spParram.field, spParram.value);
+                }
+                if (spOutParrams != null)
+                {
+                    foreach (StoreProcParam spOutParram in spOutParrams)
+                    {
+                        cmd.Parameters.Add(new SqlParameter {
+                        ParameterName = spOutParram.field,
+                        IsNullable = true,
+                        Direction = ParameterDirection.Output,
+                        DbType = DbType.String,
+                        Size = 100,
+                        Value = DBNull.Value,
+                    });
+                    }
+                }
+                cmd.Connection = sqlConn;
+
+                //Fill dataset ds
+                da.Fill(ds);
+                spReturn.ds = ds;
+                
+                if (spOutParrams != null)
+                {
+                    foreach (StoreProcParam spOutParram in spOutParrams)
+                    {
+                    outList.Add(cmd.Parameters[spOutParram.field].Value.ToString());
+                    }
+                spReturn.outputs = outList;
+                }
             }
-            cmd.Connection = sqlConn;
-
-            //Fill dataset ds
-            da.Fill(ds);
-
-            return ds;
+            catch
+            {
+                outList.Add("DB issues");
+                spReturn.outputs = outList;
+            }
+            
+            return spReturn;
         }
     }
+    public class StoreProc
+    {
+        public DataSet ds { get; set; }
+        public List<string> outputs { get; set; }
+    }
+
     public class StoreProcParam
     {
         public string field { get; set; }

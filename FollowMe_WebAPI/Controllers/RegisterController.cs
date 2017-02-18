@@ -1,9 +1,11 @@
 ﻿using FollowMe_WebAPI.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Data;
 using System.Web.Http;
 
 namespace FollowMe_WebAPI.Controllers
@@ -11,23 +13,42 @@ namespace FollowMe_WebAPI.Controllers
     public class RegisterController : ApiController
     {
         // GET: api/Register
-        public Register GetNone()
+        public RegisterStatus GetNone()
         {
-            return new Register { success = false };
+            return new RegisterStatus { success = false, message = "GET not active" };
         }
 
         // GET: api/Register/5
-        public Register Get(string theRegUser)
+        public RegisterStatus Get(string theRegUser)
         {
-            Register reg = new Register() { success = false };
+            RegisterStatus reg = new RegisterStatus() { success = false, message = "GET not active for receiving variables" };
             return reg;
         }
 
         // POST: api/Register
-        public Register Post([FromBody]string value)
+        public RegisterStatus Post([FromBody]Newtonsoft.Json.Linq.JObject value)
         {
-            Register reg = new Register() { success = true };
-            return reg;
+            RegisterStatus regstatus = new RegisterStatus();
+            if (value == null) { regstatus.success = false ; }
+            else
+            {
+                RegisteringUser regUser = new RegisteringUser();
+                regUser.firstname = value.GetValue("firstname").ToString();
+                regUser.surname = value.GetValue("surname").ToString();
+                regUser.username = value.GetValue("username").ToString();
+                regUser.email = value.GetValue("email").ToString();
+                regUser.mobilenumber = value.GetValue("mobilenumber").ToString();
+                regUser.password = value.GetValue("password").ToString();
+
+                Register reg = new Register();
+                regstatus.message = reg.RegisterUser(regUser);
+                if (regstatus.message.Length < 38) // Default message length is 37 "Message from the Registration desk: " + (char)10;
+                {
+                    regstatus.success = true;
+                }
+                else regstatus.success = false ;
+            }
+            return regstatus;
         }
 
         // PUT: api/Register/5

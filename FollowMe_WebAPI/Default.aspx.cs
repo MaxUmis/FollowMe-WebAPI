@@ -13,6 +13,7 @@ namespace FollowMe_WebAPI
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            /*
             DB db = new DB();
             DataSet ds = new DataSet();
             ds = db.GetDataSetFromString("select * from tblSites", "");
@@ -32,6 +33,7 @@ namespace FollowMe_WebAPI
                 spMessageLabel.Text = "The firstname is: " + ds2.Tables[0].Rows[0].ItemArray[1].ToString();
             }
             else spMessageLabel.Text = "Uh the horror.";
+            */
         }
     }
 }
