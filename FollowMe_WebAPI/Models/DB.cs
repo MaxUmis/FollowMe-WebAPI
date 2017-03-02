@@ -71,7 +71,7 @@ namespace FollowMe_WebAPI.Models
                         IsNullable = true,
                         Direction = ParameterDirection.Output,
                         DbType = DbType.String,
-                        Size = 100,
+                        Size = 150,
                         Value = DBNull.Value,
                     });
                     }
@@ -104,6 +104,24 @@ namespace FollowMe_WebAPI.Models
     {
         public DataSet ds { get; set; }
         public List<string> outputs { get; set; }
+
+        public string BuildOutputString(List<string> ops, string theWho, string noResponseString  )
+        {
+            if (theWho == null) theWho = "";
+            string spStatus = "";
+            if (ops == null) { spStatus = theWho+noResponseString; }
+            else
+            {
+                foreach (string o in ops)
+                {
+                    if (o.Length > 0) spStatus = spStatus + o + (char)10;
+                }
+
+                if (spStatus.Replace(((char)10).ToString(),string.Empty).Length > 1) spStatus = theWho + (char)10 + spStatus;
+                else spStatus = "";
+            }
+            return spStatus;
+        }
     }
 
     public class StoreProcParam
@@ -111,4 +129,5 @@ namespace FollowMe_WebAPI.Models
         public string field { get; set; }
         public string value { get; set; }
     }
+    
 }

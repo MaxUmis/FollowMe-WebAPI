@@ -34,6 +34,8 @@ namespace FollowMe_WebAPI
             }
             else spMessageLabel.Text = "Uh the horror.";
             */
+            Utilities utils = new Utilities();
+            messageLabel.Text = utils.EncryptString("@1$FMapi@dev");
         }
     }
 }

@@ -16,8 +16,8 @@ namespace FollowMe_WebAPI
 
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
-                routeTemplate: "api/{controller}/{theRegUser}",
-                defaults: new { theRegUser = RouteParameter.Optional }
+                routeTemplate: "api/{controller}/{theUser}",
+                defaults: new { theUser = RouteParameter.Optional }
             );
         }
     }
